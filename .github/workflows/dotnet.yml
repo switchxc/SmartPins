@@ -89,7 +89,7 @@ jobs:
           --output ./publish-framework `
           --self-contained false `
           -p:PublishSingleFile=true `
-          -p:PublishTrimmed=true `
+          -p:PublishTrimmed=false `
           -p:DebugType=None `
           -p:DebugSymbols=false `
           -p:IncludeNativeLibrariesForSelfExtract=true
@@ -102,7 +102,7 @@ jobs:
           --self-contained true `
           --runtime win-x64 `
           -p:PublishSingleFile=true `
-          -p:PublishTrimmed=true `
+          -p:PublishTrimmed=false `
           -p:DebugType=None `
           -p:DebugSymbols=false `
           -p:IncludeNativeLibrariesForSelfExtract=true `
