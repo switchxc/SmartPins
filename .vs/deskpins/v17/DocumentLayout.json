@@ -1,0 +1,132 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "C:\\Users\\snow\\source\\repos\\deskpins\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{396F3BEF-B971-48DB-8F6C-FC13E3D7ADFB}|deskpins\\deskpins.csproj|c:\\users\\snow\\source\\repos\\deskpins\\deskpins\\pinindicatorwindow.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{396F3BEF-B971-48DB-8F6C-FC13E3D7ADFB}|deskpins\\deskpins.csproj|solutionrelative:deskpins\\pinindicatorwindow.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{396F3BEF-B971-48DB-8F6C-FC13E3D7ADFB}|deskpins\\deskpins.csproj|c:\\users\\snow\\source\\repos\\deskpins\\deskpins\\app.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{396F3BEF-B971-48DB-8F6C-FC13E3D7ADFB}|deskpins\\deskpins.csproj|solutionrelative:deskpins\\app.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{396F3BEF-B971-48DB-8F6C-FC13E3D7ADFB}|deskpins\\deskpins.csproj|c:\\users\\snow\\source\\repos\\deskpins\\deskpins\\settingswindow.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{396F3BEF-B971-48DB-8F6C-FC13E3D7ADFB}|deskpins\\deskpins.csproj|solutionrelative:deskpins\\settingswindow.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{396F3BEF-B971-48DB-8F6C-FC13E3D7ADFB}|deskpins\\deskpins.csproj|c:\\users\\snow\\source\\repos\\deskpins\\deskpins\\mainwindow.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}",
+      "RelativeMoniker": "D:0:0:{396F3BEF-B971-48DB-8F6C-FC13E3D7ADFB}|deskpins\\deskpins.csproj|solutionrelative:deskpins\\mainwindow.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{396F3BEF-B971-48DB-8F6C-FC13E3D7ADFB}|deskpins\\deskpins.csproj|c:\\users\\snow\\source\\repos\\deskpins\\deskpins\\settingswindow.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}",
+      "RelativeMoniker": "D:0:0:{396F3BEF-B971-48DB-8F6C-FC13E3D7ADFB}|deskpins\\deskpins.csproj|solutionrelative:deskpins\\settingswindow.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{396F3BEF-B971-48DB-8F6C-FC13E3D7ADFB}|deskpins\\deskpins.csproj|c:\\users\\snow\\source\\repos\\deskpins\\deskpins\\mainwindow.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{396F3BEF-B971-48DB-8F6C-FC13E3D7ADFB}|deskpins\\deskpins.csproj|solutionrelative:deskpins\\mainwindow.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{396F3BEF-B971-48DB-8F6C-FC13E3D7ADFB}|deskpins\\deskpins.csproj|c:\\users\\snow\\source\\repos\\deskpins\\deskpins\\hotkey.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{396F3BEF-B971-48DB-8F6C-FC13E3D7ADFB}|deskpins\\deskpins.csproj|solutionrelative:deskpins\\hotkey.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 0,
+          "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "PinIndicatorWindow.xaml.cs",
+              "DocumentMoniker": "C:\\Users\\snow\\source\\repos\\deskpins\\deskpins\\PinIndicatorWindow.xaml.cs",
+              "RelativeDocumentMoniker": "deskpins\\PinIndicatorWindow.xaml.cs",
+              "ToolTip": "C:\\Users\\snow\\source\\repos\\deskpins\\deskpins\\PinIndicatorWindow.xaml.cs",
+              "RelativeToolTip": "deskpins\\PinIndicatorWindow.xaml.cs",
+              "ViewState": "AgIAACEAAAAAAAAAAAAowDQAAAArAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-06-27T00:58:06.858Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "SettingsWindow.xaml",
+              "DocumentMoniker": "C:\\Users\\snow\\source\\repos\\deskpins\\deskpins\\SettingsWindow.xaml",
+              "RelativeDocumentMoniker": "deskpins\\SettingsWindow.xaml",
+              "ToolTip": "C:\\Users\\snow\\source\\repos\\deskpins\\deskpins\\SettingsWindow.xaml",
+              "RelativeToolTip": "deskpins\\SettingsWindow.xaml",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003549|",
+              "WhenOpened": "2025-06-26T23:01:14.218Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "SettingsWindow.xaml.cs",
+              "DocumentMoniker": "C:\\Users\\snow\\source\\repos\\deskpins\\deskpins\\SettingsWindow.xaml.cs",
+              "RelativeDocumentMoniker": "deskpins\\SettingsWindow.xaml.cs",
+              "ToolTip": "C:\\Users\\snow\\source\\repos\\deskpins\\deskpins\\SettingsWindow.xaml.cs",
+              "RelativeToolTip": "deskpins\\SettingsWindow.xaml.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAgAAAAMAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-06-26T22:28:53.212Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "App.xaml.cs",
+              "DocumentMoniker": "C:\\Users\\snow\\source\\repos\\deskpins\\deskpins\\App.xaml.cs",
+              "RelativeDocumentMoniker": "deskpins\\App.xaml.cs",
+              "ToolTip": "C:\\Users\\snow\\source\\repos\\deskpins\\deskpins\\App.xaml.cs",
+              "RelativeToolTip": "deskpins\\App.xaml.cs",
+              "ViewState": "AgIAAEIAAAAAAAAAAAAiwEYAAAAUAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-06-26T22:28:44.839Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
+              "Title": "Hotkey.cs",
+              "DocumentMoniker": "C:\\Users\\snow\\source\\repos\\deskpins\\deskpins\\Hotkey.cs",
+              "RelativeDocumentMoniker": "deskpins\\Hotkey.cs",
+              "ToolTip": "C:\\Users\\snow\\source\\repos\\deskpins\\deskpins\\Hotkey.cs",
+              "RelativeToolTip": "deskpins\\Hotkey.cs",
+              "ViewState": "AgIAAAkAAAAAAAAAAADgvx0AAAAuAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-06-26T22:21:44.182Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "MainWindow.xaml",
+              "DocumentMoniker": "C:\\Users\\snow\\source\\repos\\deskpins\\deskpins\\MainWindow.xaml",
+              "RelativeDocumentMoniker": "deskpins\\MainWindow.xaml",
+              "ToolTip": "C:\\Users\\snow\\source\\repos\\deskpins\\deskpins\\MainWindow.xaml",
+              "RelativeToolTip": "deskpins\\MainWindow.xaml",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003549|",
+              "WhenOpened": "2025-06-26T22:17:06.805Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "MainWindow.xaml.cs",
+              "DocumentMoniker": "C:\\Users\\snow\\source\\repos\\deskpins\\deskpins\\MainWindow.xaml.cs",
+              "RelativeDocumentMoniker": "deskpins\\MainWindow.xaml.cs",
+              "ToolTip": "C:\\Users\\snow\\source\\repos\\deskpins\\deskpins\\MainWindow.xaml.cs",
+              "RelativeToolTip": "deskpins\\MainWindow.xaml.cs",
+              "ViewState": "AgIAADQAAAAAAAAAAAASwEsAAAAPAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-06-26T22:16:58.106Z"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

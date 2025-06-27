@@ -1,0 +1,53 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "C:\\Users\\snow\\source\\repos\\SmartPins\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{396F3BEF-B971-48DB-8F6C-FC13E3D7ADFB}|SmartPins\\SmartPins.csproj|c:\\users\\snow\\source\\repos\\smartpins\\smartpins\\windowpinmanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{396F3BEF-B971-48DB-8F6C-FC13E3D7ADFB}|SmartPins\\SmartPins.csproj|solutionrelative:smartpins\\windowpinmanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{396F3BEF-B971-48DB-8F6C-FC13E3D7ADFB}|SmartPins\\SmartPins.csproj|c:\\users\\snow\\source\\repos\\smartpins\\smartpins\\pinindicatorwindow.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}",
+      "RelativeMoniker": "D:0:0:{396F3BEF-B971-48DB-8F6C-FC13E3D7ADFB}|SmartPins\\SmartPins.csproj|solutionrelative:smartpins\\pinindicatorwindow.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 0,
+          "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "WindowPinManager.cs",
+              "DocumentMoniker": "C:\\Users\\snow\\source\\repos\\SmartPins\\SmartPins\\WindowPinManager.cs",
+              "RelativeDocumentMoniker": "SmartPins\\WindowPinManager.cs",
+              "ToolTip": "C:\\Users\\snow\\source\\repos\\SmartPins\\SmartPins\\WindowPinManager.cs",
+              "RelativeToolTip": "SmartPins\\WindowPinManager.cs",
+              "ViewState": "AgIAAFoBAAAAAAAAAAAiwJwBAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-06-27T01:33:25.192Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "PinIndicatorWindow.xaml",
+              "DocumentMoniker": "C:\\Users\\snow\\source\\repos\\SmartPins\\SmartPins\\PinIndicatorWindow.xaml",
+              "RelativeDocumentMoniker": "SmartPins\\PinIndicatorWindow.xaml",
+              "ToolTip": "C:\\Users\\snow\\source\\repos\\SmartPins\\SmartPins\\PinIndicatorWindow.xaml",
+              "RelativeToolTip": "SmartPins\\PinIndicatorWindow.xaml",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003549|",
+              "WhenOpened": "2025-06-27T01:14:36.428Z",
+              "EditorCaption": ""
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

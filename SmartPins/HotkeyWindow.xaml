@@ -1,0 +1,330 @@
+<Window x:Class="SmartPins.HotkeyWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+        mc:Ignorable="d"
+        Title="Настройка горячих клавиш" 
+        Height="500" Width="600"
+        WindowStartupLocation="CenterOwner"
+        Background="Transparent"
+        AllowsTransparency="True"
+        WindowStyle="None"
+        ResizeMode="NoResize">
+
+    <Window.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <materialDesign:BundledTheme BaseTheme="Dark" PrimaryColor="Blue" SecondaryColor="LightBlue" />
+                <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.Defaults.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+            
+            <!-- Windows 11 стиль -->
+            <CornerRadius x:Key="WindowCornerRadius">12</CornerRadius>
+            <CornerRadius x:Key="CardCornerRadius">8</CornerRadius>
+            <CornerRadius x:Key="ButtonCornerRadius">6</CornerRadius>
+            <CornerRadius x:Key="InputCornerRadius">8</CornerRadius>
+            
+            <!-- Цвета Windows 11 -->
+            <SolidColorBrush x:Key="Win11Background" Color="#FF202020"/>
+            <SolidColorBrush x:Key="Win11CardBackground" Color="#FF2B2B2B"/>
+            <SolidColorBrush x:Key="Win11Border" Color="#FF404040"/>
+            <SolidColorBrush x:Key="Win11Accent" Color="#FF0078D4"/>
+            <SolidColorBrush x:Key="Win11TextPrimary" Color="#FFE0E0E0"/>
+            <SolidColorBrush x:Key="Win11TextSecondary" Color="#FFAAAAAA"/>
+            <SolidColorBrush x:Key="Win11InputBackground" Color="#FF1F1F1F"/>
+            <SolidColorBrush x:Key="Win11HoverBackground" Color="#FF353535"/>
+            
+            <!-- Стили кнопок -->
+            <Style x:Key="Win11ButtonStyle" TargetType="Button" BasedOn="{StaticResource MaterialDesignRaisedButton}">
+                <Setter Property="Background" Value="{StaticResource Win11Accent}"/>
+                <Setter Property="Foreground" Value="White"/>
+                <Setter Property="BorderThickness" Value="0"/>
+                <Setter Property="Padding" Value="16,8"/>
+                <Setter Property="FontWeight" Value="Medium"/>
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="Button">
+                            <Border Background="{TemplateBinding Background}"
+                                    CornerRadius="{StaticResource ButtonCornerRadius}"
+                                    BorderThickness="{TemplateBinding BorderThickness}"
+                                    BorderBrush="{TemplateBinding BorderBrush}">
+                                <ContentPresenter HorizontalAlignment="Center" 
+                                                VerticalAlignment="Center"
+                                                Margin="{TemplateBinding Padding}"/>
+                            </Border>
+                            <ControlTemplate.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter Property="Background" Value="#FF106EBE"/>
+                                </Trigger>
+                                <Trigger Property="IsPressed" Value="True">
+                                    <Setter Property="Background" Value="#FF005A9E"/>
+                                </Trigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+            
+            <Style x:Key="Win11OutlinedButtonStyle" TargetType="Button" BasedOn="{StaticResource MaterialDesignOutlinedButton}">
+                <Setter Property="Background" Value="Transparent"/>
+                <Setter Property="Foreground" Value="{StaticResource Win11TextPrimary}"/>
+                <Setter Property="BorderBrush" Value="{StaticResource Win11Border}"/>
+                <Setter Property="BorderThickness" Value="1"/>
+                <Setter Property="Padding" Value="16,8"/>
+                <Setter Property="FontWeight" Value="Medium"/>
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="Button">
+                            <Border Background="{TemplateBinding Background}"
+                                    CornerRadius="{StaticResource ButtonCornerRadius}"
+                                    BorderThickness="{TemplateBinding BorderThickness}"
+                                    BorderBrush="{TemplateBinding BorderBrush}">
+                                <ContentPresenter HorizontalAlignment="Center" 
+                                                VerticalAlignment="Center"
+                                                Margin="{TemplateBinding Padding}"/>
+                            </Border>
+                            <ControlTemplate.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter Property="Background" Value="{StaticResource Win11HoverBackground}"/>
+                                    <Setter Property="BorderBrush" Value="{StaticResource Win11Accent}"/>
+                                </Trigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+        </ResourceDictionary>
+    </Window.Resources>
+
+    <WindowChrome.WindowChrome>
+        <WindowChrome CaptionHeight="32" ResizeBorderThickness="0" />
+    </WindowChrome.WindowChrome>
+
+    <Border CornerRadius="{StaticResource WindowCornerRadius}" 
+            Background="{StaticResource Win11Background}"
+            BorderBrush="{StaticResource Win11Border}"
+            BorderThickness="1">
+        
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <!-- Заголовок Windows 11 -->
+            <Border Grid.Row="0" 
+                    Background="{StaticResource Win11CardBackground}"
+                    CornerRadius="12,12,0,0"
+                    BorderBrush="{StaticResource Win11Border}"
+                    BorderThickness="0,0,0,1">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    
+                    <StackPanel Grid.Column="0" 
+                                Orientation="Horizontal" 
+                                VerticalAlignment="Center"
+                                Margin="20,12,20,12">
+                        <materialDesign:PackIcon Kind="KeyboardSettings" 
+                                                 Width="20" Height="20" 
+                                                 Margin="0,0,12,0" 
+                                                 Foreground="{StaticResource Win11Accent}"/>
+                        <TextBlock Text="Настройка горячих клавиш" 
+                                   FontSize="16" 
+                                   FontWeight="SemiBold" 
+                                   VerticalAlignment="Center" 
+                                   Foreground="{StaticResource Win11TextPrimary}"/>
+                    </StackPanel>
+                    
+                    <StackPanel Grid.Column="1" 
+                                Orientation="Horizontal" 
+                                VerticalAlignment="Top"
+                                Margin="0,8,8,0">
+                        <Button Style="{DynamicResource MaterialDesignIconButton}"
+                                Click="MinimizeButton_Click"
+                                Width="32" Height="32"
+                                Padding="0"
+                                Background="Transparent"
+                                Foreground="{StaticResource Win11TextSecondary}">
+                            <materialDesign:PackIcon Kind="Minus" Width="16" Height="16"/>
+                        </Button>
+                        <Button Style="{DynamicResource MaterialDesignIconButton}"
+                                Click="CloseButton_Click"
+                                Width="32" Height="32"
+                                Padding="0"
+                                Background="Transparent"
+                                Foreground="{StaticResource Win11TextSecondary}">
+                            <materialDesign:PackIcon Kind="Close" Width="16" Height="16"/>
+                        </Button>
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <!-- Основной контент -->
+            <ScrollViewer Grid.Row="1" 
+                          VerticalScrollBarVisibility="Auto"
+                          Margin="20,20,20,20">
+                <StackPanel>
+                    <!-- Информационная карточка -->
+                    <Border Background="{StaticResource Win11CardBackground}"
+                            CornerRadius="{StaticResource CardCornerRadius}"
+                            BorderBrush="{StaticResource Win11Border}"
+                            BorderThickness="1"
+                            Padding="20"
+                            Margin="0,0,0,20">
+                        <StackPanel>
+                            <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
+                                <materialDesign:PackIcon Kind="Information" 
+                                                         Width="20" Height="20" 
+                                                         Margin="0,0,8,0" 
+                                                         Foreground="{StaticResource Win11Accent}"/>
+                                <TextBlock Text="Информация" 
+                                           FontSize="14" 
+                                           FontWeight="SemiBold" 
+                                           VerticalAlignment="Center" 
+                                           Foreground="{StaticResource Win11TextPrimary}"/>
+                            </StackPanel>
+                            <TextBlock Text="Нажмите комбинацию клавиш для установки горячих клавиш. Поддерживаются модификаторы: Ctrl, Alt, Shift, Win и любые функциональные клавиши." 
+                                       FontSize="13" 
+                                       Foreground="{StaticResource Win11TextSecondary}"
+                                       TextWrapping="Wrap"
+                                       LineHeight="18"/>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Область ввода горячих клавиш -->
+                    <Border Background="{StaticResource Win11CardBackground}"
+                            CornerRadius="{StaticResource CardCornerRadius}"
+                            BorderBrush="{StaticResource Win11Border}"
+                            BorderThickness="1"
+                            Padding="20"
+                            Margin="0,0,0,20">
+                        <StackPanel>
+                            <TextBlock Text="Текущая комбинация" 
+                                       FontSize="14" 
+                                       FontWeight="SemiBold" 
+                                       Margin="0,0,0,16" 
+                                       Foreground="{StaticResource Win11TextPrimary}"/>
+                            
+                            <!-- Поле ввода горячих клавиш -->
+                            <Border Background="{StaticResource Win11InputBackground}"
+                                    CornerRadius="{StaticResource InputCornerRadius}"
+                                    BorderBrush="{StaticResource Win11Border}"
+                                    BorderThickness="1"
+                                    Padding="16,12"
+                                    Margin="0,0,0,16">
+                                <TextBlock x:Name="HotkeyDisplay" 
+                                           Text="Нажмите клавиши..." 
+                                           FontSize="16"
+                                           FontWeight="Medium"
+                                           HorizontalAlignment="Center"
+                                           Foreground="{StaticResource Win11TextSecondary}"/>
+                            </Border>
+                            
+                            <!-- Кнопка очистки -->
+                            <Button Style="{StaticResource Win11OutlinedButtonStyle}"
+                                    Click="ClearButton_Click"
+                                    HorizontalAlignment="Center"
+                                    Width="120">
+                                <StackPanel Orientation="Horizontal">
+                                    <materialDesign:PackIcon Kind="Refresh" Width="16" Height="16" Margin="0,0,8,0"/>
+                                    <TextBlock Text="Очистить"/>
+                                </StackPanel>
+                            </Button>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Предустановленные комбинации -->
+                    <Border Background="{StaticResource Win11CardBackground}"
+                            CornerRadius="{StaticResource CardCornerRadius}"
+                            BorderBrush="{StaticResource Win11Border}"
+                            BorderThickness="1"
+                            Padding="20">
+                        <StackPanel>
+                            <TextBlock Text="Популярные комбинации" 
+                                       FontSize="14" 
+                                       FontWeight="SemiBold" 
+                                       Margin="0,0,0,16" 
+                                       Foreground="{StaticResource Win11TextPrimary}"/>
+                            
+                            <UniformGrid Columns="2" Rows="3">
+                                <Button Style="{StaticResource Win11OutlinedButtonStyle}"
+                                        Click="PresetHotkey_Click"
+                                        Tag="Ctrl+Alt+P"
+                                        Margin="0,0,8,8"
+                                        Height="36">
+                                    <TextBlock Text="Ctrl+Alt+P" FontSize="12"/>
+                                </Button>
+                                <Button Style="{StaticResource Win11OutlinedButtonStyle}"
+                                        Click="PresetHotkey_Click"
+                                        Tag="Ctrl+Shift+P"
+                                        Margin="8,0,0,8"
+                                        Height="36">
+                                    <TextBlock Text="Ctrl+Shift+P" FontSize="12"/>
+                                </Button>
+                                <Button Style="{StaticResource Win11OutlinedButtonStyle}"
+                                        Click="PresetHotkey_Click"
+                                        Tag="Win+P"
+                                        Margin="0,0,8,8"
+                                        Height="36">
+                                    <TextBlock Text="Win+P" FontSize="12"/>
+                                </Button>
+                                <Button Style="{StaticResource Win11OutlinedButtonStyle}"
+                                        Click="PresetHotkey_Click"
+                                        Tag="F12"
+                                        Margin="8,0,0,8"
+                                        Height="36">
+                                    <TextBlock Text="F12" FontSize="12"/>
+                                </Button>
+                                <Button Style="{StaticResource Win11OutlinedButtonStyle}"
+                                        Click="PresetHotkey_Click"
+                                        Tag="Ctrl+F12"
+                                        Margin="0,0,8,0"
+                                        Height="36">
+                                    <TextBlock Text="Ctrl+F12" FontSize="12"/>
+                                </Button>
+                                <Button Style="{StaticResource Win11OutlinedButtonStyle}"
+                                        Click="PresetHotkey_Click"
+                                        Tag="Alt+F12"
+                                        Margin="8,0,0,0"
+                                        Height="36">
+                                    <TextBlock Text="Alt+F12" FontSize="12"/>
+                                </Button>
+                            </UniformGrid>
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+            </ScrollViewer>
+
+            <!-- Нижняя панель с кнопками -->
+            <Border Grid.Row="2" 
+                    Background="{StaticResource Win11CardBackground}"
+                    CornerRadius="0,0,12,12"
+                    BorderBrush="{StaticResource Win11Border}"
+                    BorderThickness="0,1,0,0"
+                    Padding="20,16,20,20">
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                    <Button Style="{StaticResource Win11OutlinedButtonStyle}"
+                            Click="CancelButton_Click"
+                            Margin="0,0,12,0"
+                            Width="100">
+                        <TextBlock Text="Отмена"/>
+                    </Button>
+                    <Button Style="{StaticResource Win11ButtonStyle}"
+                            Click="SaveButton_Click"
+                            Width="120">
+                        <StackPanel Orientation="Horizontal">
+                            <materialDesign:PackIcon Kind="ContentSave" Width="16" Height="16" Margin="0,0,8,0"/>
+                            <TextBlock Text="Сохранить"/>
+                        </StackPanel>
+                    </Button>
+                </StackPanel>
+            </Border>
+        </Grid>
+    </Border>
+</Window> 
