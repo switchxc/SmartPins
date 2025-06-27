@@ -98,18 +98,48 @@
                     </Setter.Value>
                 </Setter>
             </Style>
+            
+            <!-- Стиль для кнопок заголовка окна -->
+            <Style x:Key="TitleBarButtonStyle" TargetType="Button" BasedOn="{StaticResource MaterialDesignIconButton}">
+                <Setter Property="Background" Value="Transparent"/>
+                <Setter Property="Foreground" Value="{StaticResource Win11TextSecondary}"/>
+                <Setter Property="BorderThickness" Value="0"/>
+                <Setter Property="Padding" Value="0"/>
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="Button">
+                            <Border Background="{TemplateBinding Background}"
+                                    CornerRadius="4"
+                                    BorderThickness="{TemplateBinding BorderThickness}"
+                                    BorderBrush="{TemplateBinding BorderBrush}">
+                                <ContentPresenter HorizontalAlignment="Center" 
+                                                VerticalAlignment="Center"
+                                                Margin="{TemplateBinding Padding}"/>
+                            </Border>
+                            <ControlTemplate.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter Property="Background" Value="{StaticResource Win11HoverBackground}"/>
+                                    <Setter Property="Foreground" Value="{StaticResource Win11TextPrimary}"/>
+                                </Trigger>
+                                <Trigger Property="IsPressed" Value="True">
+                                    <Setter Property="Background" Value="#FF404040"/>
+                                </Trigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
         </ResourceDictionary>
     </Window.Resources>
 
-    <WindowChrome.WindowChrome>
-        <WindowChrome CaptionHeight="32" ResizeBorderThickness="5" />
-    </WindowChrome.WindowChrome>
+    <!-- <WindowChrome.WindowChrome>
+        <WindowChrome CaptionHeight="50" ResizeBorderThickness="5" />
+    </WindowChrome.WindowChrome> -->
 
     <Border CornerRadius="{StaticResource WindowCornerRadius}" 
             Background="{StaticResource Win11Background}"
             BorderBrush="{StaticResource Win11Border}"
             BorderThickness="1">
-        
         <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
@@ -118,7 +148,7 @@
             </Grid.RowDefinitions>
 
             <!-- Заголовок Windows 11 -->
-            <Border Grid.Row="0" 
+            <Border x:Name="TitleBar" Grid.Row="0" 
                     Background="{StaticResource Win11CardBackground}"
                     CornerRadius="12,12,0,0"
                     BorderBrush="{StaticResource Win11Border}"
@@ -128,43 +158,34 @@
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
-                    
-                    <StackPanel Grid.Column="0" 
-                                Orientation="Horizontal" 
-                                VerticalAlignment="Center"
-                                Margin="20,12,20,12">
-                        <materialDesign:PackIcon Kind="Pin" 
-                                                 Width="20" Height="20" 
-                                                 Margin="0,0,12,0" 
-                                                 Foreground="{StaticResource Win11Accent}"/>
-                        <TextBlock Text="SmartPins" 
-                                   FontSize="16" 
-                                   FontWeight="SemiBold" 
-                                   VerticalAlignment="Center" 
-                                   Foreground="{StaticResource Win11TextPrimary}"/>
+                    <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center" Margin="20,12,20,12">
+                        <materialDesign:PackIcon Kind="Pin" Width="20" Height="20" Margin="0,0,12,0" Foreground="{StaticResource Win11Accent}"/>
+                        <TextBlock Text="SmartPins" FontSize="16" FontWeight="SemiBold" VerticalAlignment="Center" Foreground="{StaticResource Win11TextPrimary}"/>
                     </StackPanel>
-                    
-                    <StackPanel Grid.Column="1" 
-                                Orientation="Horizontal" 
-                                VerticalAlignment="Center"
-                                Margin="0,0,8,0">
-                        <Button Style="{DynamicResource MaterialDesignIconButton}"
+                    <Grid Grid.Column="1" VerticalAlignment="Stretch" Height="Auto" Margin="0,0,8,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="46"/>
+                            <ColumnDefinition Width="46"/>
+                        </Grid.ColumnDefinitions>
+                        <Button Grid.Column="0"
+                                Style="{StaticResource TitleBarButtonStyle}"
                                 Click="MinimizeButton_Click"
-                                Width="40" Height="40"
-                                Padding="0"
-                                Background="Transparent"
-                                Foreground="{StaticResource Win11TextSecondary}">
-                            <materialDesign:PackIcon Kind="Minus" Width="18" Height="18"/>
+                                Height="40"
+                                ToolTip="Свернуть"
+                                VerticalAlignment="Center"
+                                HorizontalAlignment="Center">
+                            <materialDesign:PackIcon Kind="Minus" Width="16" Height="16"/>
                         </Button>
-                        <Button Style="{DynamicResource MaterialDesignIconButton}"
+                        <Button Grid.Column="1"
+                                Style="{StaticResource TitleBarButtonStyle}"
                                 Click="CloseButton_Click"
-                                Width="40" Height="40"
-                                Padding="0"
-                                Background="Transparent"
-                                Foreground="{StaticResource Win11TextSecondary}">
-                            <materialDesign:PackIcon Kind="Close" Width="18" Height="18"/>
+                                Height="40"
+                                ToolTip="Закрыть"
+                                VerticalAlignment="Center"
+                                HorizontalAlignment="Center">
+                            <materialDesign:PackIcon Kind="Close" Width="16" Height="16"/>
                         </Button>
-                    </StackPanel>
+                    </Grid>
                 </Grid>
             </Border>
 
@@ -190,13 +211,11 @@
                                        VerticalAlignment="Center" 
                                        Foreground="{StaticResource Win11TextPrimary}"/>
                         </StackPanel>
-                        
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*"/>
                                 <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
-                            
                             <StackPanel Grid.Column="0" HorizontalAlignment="Center">
                                 <TextBlock x:Name="PinnedWindowsCount" Text="0" 
                                            FontSize="24"
@@ -208,14 +227,13 @@
                                            HorizontalAlignment="Center"
                                            Foreground="{StaticResource Win11TextSecondary}"/>
                             </StackPanel>
-                            
                             <StackPanel Grid.Column="1" HorizontalAlignment="Center">
-                                <TextBlock x:Name="TotalWindowsCount" Text="0" 
+                                <TextBlock x:Name="VisibleWindowsCount" Text="0" 
                                            FontSize="24"
                                            FontWeight="Bold"
                                            HorizontalAlignment="Center"
                                            Foreground="{StaticResource Win11TextPrimary}"/>
-                                <TextBlock Text="Всего окон" 
+                                <TextBlock Text="Видимых окон" 
                                            FontSize="12"
                                            HorizontalAlignment="Center"
                                            Foreground="{StaticResource Win11TextSecondary}"/>
@@ -243,7 +261,6 @@
                                        VerticalAlignment="Center" 
                                        Foreground="{StaticResource Win11TextPrimary}"/>
                         </StackPanel>
-                        
                         <Button Style="{StaticResource Win11ButtonStyle}"
                                 Click="PinActiveWindow_Click"
                                 Margin="0,0,0,12">
@@ -252,7 +269,6 @@
                                 <TextBlock Text="Закрепить активное окно"/>
                             </StackPanel>
                         </Button>
-                        
                         <Button Style="{StaticResource Win11OutlinedButtonStyle}"
                                 Click="PinWithCursor_Click"
                                 Margin="0,0,0,12">
@@ -261,7 +277,6 @@
                                 <TextBlock Text="Закрепить курсором"/>
                             </StackPanel>
                         </Button>
-                        
                         <Button Style="{StaticResource Win11OutlinedButtonStyle}"
                                 Click="UnpinAll_Click">
                             <StackPanel Orientation="Horizontal">
@@ -286,21 +301,22 @@
                         <ColumnDefinition Width="16"/>
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
-                    <Button x:Name="HotkeyButton"
+                    <Button x:Name="SettingsButton"
                             Style="{StaticResource Win11OutlinedButtonStyle}"
-                            Click="HotkeyButton_Click"
+                            Click="SettingsButton_Click"
                             Height="32"
                             MinWidth="44"
                             Padding="8,0"
-                            ToolTip="Изменить горячую клавишу">
+                            ToolTip="Открыть настройки">
                         <StackPanel Orientation="Horizontal">
-                            <materialDesign:PackIcon Kind="KeyboardSettings" Width="16" Height="16" Margin="0,0,6,0"/>
-                            <TextBlock Text="Горячие клавиши" VerticalAlignment="Center"/>
+                            <materialDesign:PackIcon Kind="Cog" Width="16" Height="16" Margin="0,0,6,0"/>
+                            <TextBlock Text="Настройки" VerticalAlignment="Center"/>
                         </StackPanel>
                     </Button>
                     <TextBlock x:Name="CurrentHotkeyText"
                                Grid.Column="2"
                                VerticalAlignment="Center"
+                               HorizontalAlignment="Right"
                                FontSize="14"
                                Foreground="{StaticResource Win11TextSecondary}"
                                Text="Ctrl+Alt+P"/>

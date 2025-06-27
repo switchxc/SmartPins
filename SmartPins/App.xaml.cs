@@ -81,6 +81,12 @@ namespace SmartPins
                 }
 
                 var contextMenu = new System.Windows.Controls.ContextMenu();
+                // Применяем кастомный стиль
+                contextMenu.Style = (Style)System.Windows.Application.Current.Resources["Win11TrayMenuStyle"];
+                contextMenu.MinWidth = 180; // Сделать меню шире
+                contextMenu.HorizontalContentAlignment = System.Windows.HorizontalAlignment.Left; // Выровнять текст по левому краю
+
+                // Пункт "Показать"
                 var showItem = new System.Windows.Controls.MenuItem { Header = "Показать" };
                 showItem.Click += (s, e) =>
                 {
@@ -91,9 +97,66 @@ namespace SmartPins
                         MainWindow.Activate();
                     }
                 };
+                // Добавляем иконку к пункту
+                showItem.Icon = new System.Windows.Controls.Image
+                {
+                    Source = System.Windows.Interop.Imaging.CreateBitmapSourceFromHIcon(
+                        new Icon(iconPath).Handle,
+                        System.Windows.Int32Rect.Empty,
+                        System.Windows.Media.Imaging.BitmapSizeOptions.FromWidthAndHeight(16, 16)),
+                    Width = 16,
+                    Height = 16
+                };
+
+                // Пункт "Настройки"
+                var settingsItem = new System.Windows.Controls.MenuItem { Header = "Настройки" };
+                settingsItem.Click += (s, e) => ShowSettings();
+                settingsItem.Icon = new System.Windows.Controls.Image
+                {
+                    Source = System.Windows.Interop.Imaging.CreateBitmapSourceFromHIcon(
+                        new Icon(iconPath).Handle,
+                        System.Windows.Int32Rect.Empty,
+                        System.Windows.Media.Imaging.BitmapSizeOptions.FromWidthAndHeight(16, 16)),
+                    Width = 16,
+                    Height = 16
+                };
+
+                // Пункт "О программе"
+                var aboutItem = new System.Windows.Controls.MenuItem { Header = "О программе" };
+                aboutItem.Click += (s, e) =>
+                {
+                    var aboutWindow = new AboutWindow();
+                    aboutWindow.Owner = MainWindow;
+                    aboutWindow.ShowDialog();
+                };
+                aboutItem.Icon = new System.Windows.Controls.Image
+                {
+                    Source = System.Windows.Interop.Imaging.CreateBitmapSourceFromHIcon(
+                        new Icon(iconPath).Handle,
+                        System.Windows.Int32Rect.Empty,
+                        System.Windows.Media.Imaging.BitmapSizeOptions.FromWidthAndHeight(16, 16)),
+                    Width = 16,
+                    Height = 16
+                };
+
+                // Пункт "Выход"
                 var exitItem = new System.Windows.Controls.MenuItem { Header = "Выход" };
                 exitItem.Click += (s, e) => Shutdown();
+                exitItem.Icon = new System.Windows.Controls.Image
+                {
+                    Source = System.Windows.Interop.Imaging.CreateBitmapSourceFromHIcon(
+                        new Icon(iconPath).Handle,
+                        System.Windows.Int32Rect.Empty,
+                        System.Windows.Media.Imaging.BitmapSizeOptions.FromWidthAndHeight(16, 16)),
+                    Width = 16,
+                    Height = 16
+                };
+
+                // Формируем меню с разделителями
                 contextMenu.Items.Add(showItem);
+                contextMenu.Items.Add(new System.Windows.Controls.Separator());
+                contextMenu.Items.Add(settingsItem);
+                contextMenu.Items.Add(aboutItem);
                 contextMenu.Items.Add(new System.Windows.Controls.Separator());
                 contextMenu.Items.Add(exitItem);
                 taskbarIcon.ContextMenu = contextMenu;

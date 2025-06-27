@@ -20,6 +20,7 @@ using MaterialDesignThemes.Wpf;
 using Hardcodet.Wpf.TaskbarNotification;
 using Newtonsoft.Json;
 using System.Runtime.Versioning;
+using System.Windows.Interop;
 
 namespace SmartPins
 {
@@ -53,14 +54,20 @@ namespace SmartPins
         [DllImport("user32.dll")]
         private static extern bool IsWindow(IntPtr hWnd);
 
-        [StructLayout(LayoutKind.Sequential)]
-        public struct RECT
-        {
-            public int Left;
-            public int Top;
-            public int Right;
-            public int Bottom;
-        }
+        [DllImport("user32.dll")]
+        private static extern bool IsWindowVisible(IntPtr hWnd);
+
+        [DllImport("user32.dll")]
+        private static extern int GetWindowTextLength(IntPtr hWnd);
+
+        [DllImport("user32.dll")]
+        private static extern IntPtr SendMessage(IntPtr hWnd, int Msg, int wParam, int lParam);
+
+        [DllImport("user32.dll")]
+        private static extern IntPtr GetClassLongPtr(IntPtr hWnd, int nIndex);
+
+        [DllImport("user32.dll")]
+        private static extern bool EnumWindows(EnumWindowsProc lpEnumFunc, IntPtr lParam);
 
         private const uint SWP_NOMOVE = 0x0002;
         private const uint SWP_NOSIZE = 0x0001;
@@ -74,8 +81,20 @@ namespace SmartPins
         private Hotkey? pinHotkey;
         private WindowPinManager pinManager;
         private MouseHook? mouseHook;
-        private string settingsFilePath = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "SmartPins", "settings.json");
+        private string settingsFilePath = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), "SmartPins", "settings.json");
         private string currentHotkey = "Ctrl+Alt+P";
+        private bool highlightOnlyPinned = false;
+
+        public ObservableCollection<WindowInfo> Windows { get; set; } = new();
+
+        [StructLayout(LayoutKind.Sequential)]
+        public struct RECT
+        {
+            public int Left;
+            public int Top;
+            public int Right;
+            public int Bottom;
+        }
 
         public MainWindow()
         {
@@ -100,11 +119,26 @@ namespace SmartPins
             // Загрузка настроек
             LoadSettings();
             
-            // Обновление статистики
-            UpdateStatistics();
-            
-            // Добавляем обработчик для перетаскивания окна
-            MouseLeftButtonDown += (s, e) => DragMove();
+            // Добавляем обработчик для перетаскивания окна только на заголовок
+            TitleBar.MouseLeftButtonDown += TitleBar_MouseLeftButtonDown;
+
+            RefreshWindowsList();
+        }
+
+        private void TitleBar_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            // Если клик по кнопке — не двигаем окно
+            if (e.OriginalSource is DependencyObject depObj)
+            {
+                var parent = depObj;
+                while (parent != null)
+                {
+                    if (parent is Button)
+                        return;
+                    parent = VisualTreeHelper.GetParent(parent);
+                }
+            }
+            DragMove();
         }
 
         private void InitializeHotkeys()
@@ -122,11 +156,12 @@ namespace SmartPins
 
         private void InitializeStatusTimer()
         {
-            statusTimer.Interval = TimeSpan.FromSeconds(2);
+            statusTimer.Interval = TimeSpan.FromSeconds(1);
             statusTimer.Tick += (s, e) =>
             {
-                // Статусная строка убрана, ничего не делаем
+                RefreshWindowsList();
             };
+            statusTimer.Start();
         }
 
         private void LoadSettings()
@@ -138,12 +173,16 @@ namespace SmartPins
                     var json = File.ReadAllText(settingsFilePath);
                     var settings = JsonConvert.DeserializeObject<AppSettings>(json);
                     
-                    if (settings != null && !string.IsNullOrEmpty(settings.Hotkey))
+                    if (settings != null)
                     {
-                        var (modifiers, key) = ParseHotkeyString(settings.Hotkey);
-                        pinHotkey = new Hotkey(modifiers, key);
-                        pinHotkey.Pressed += (s, args) => ToggleActiveWindow();
-                        currentHotkey = settings.Hotkey;
+                        if (!string.IsNullOrEmpty(settings.Hotkey))
+                        {
+                            var (modifiers, key) = ParseHotkeyString(settings.Hotkey);
+                            pinHotkey = new Hotkey(modifiers, key);
+                            pinHotkey.Pressed += (s, args) => ToggleActiveWindow();
+                            currentHotkey = settings.Hotkey;
+                        }
+                        highlightOnlyPinned = settings.HighlightOnlyPinned;
                     }
                 }
             }
@@ -159,7 +198,11 @@ namespace SmartPins
         {
             try
             {
-                var settings = new AppSettings { Hotkey = hotkey };
+                var settings = new AppSettings 
+                { 
+                    Hotkey = hotkey, 
+                    HighlightOnlyPinned = highlightOnlyPinned 
+                };
                 var json = JsonConvert.SerializeObject(settings, Formatting.Indented);
                 
                 var directory = System.IO.Path.GetDirectoryName(settingsFilePath);
@@ -182,7 +225,9 @@ namespace SmartPins
         private void UpdateHotkeyText()
         {
             if (CurrentHotkeyText != null)
+            {
                 CurrentHotkeyText.Text = currentHotkey;
+            }
         }
 
         private void ShowStatus(string message)
@@ -255,7 +300,7 @@ namespace SmartPins
         {
             Dispatcher.Invoke(() =>
             {
-                UpdateStatistics();
+                // Статусная строка убрана, ничего не делаем
             });
         }
 
@@ -263,7 +308,7 @@ namespace SmartPins
         {
             Dispatcher.Invoke(() =>
             {
-                UpdateStatistics();
+                // Статусная строка убрана, ничего не делаем
             });
         }
 
@@ -310,7 +355,6 @@ namespace SmartPins
         private void UnpinAll_Click(object sender, RoutedEventArgs e)
         {
             pinManager.UnpinAllWindows();
-            UpdateStatistics();
         }
 
         private void EnablePinMode_Click(object sender, RoutedEventArgs e)
@@ -318,11 +362,61 @@ namespace SmartPins
             EnablePinMode();
         }
 
+        private void SaveAllSettings()
+        {
+            try
+            {
+                var settings = new AppSettings 
+                { 
+                    Hotkey = currentHotkey, 
+                    HighlightOnlyPinned = highlightOnlyPinned 
+                };
+                var json = JsonConvert.SerializeObject(settings, Formatting.Indented);
+                
+                var directory = System.IO.Path.GetDirectoryName(settingsFilePath);
+                if (!Directory.Exists(directory))
+                {
+                    Directory.CreateDirectory(directory!);
+                }
+                
+                File.WriteAllText(settingsFilePath, json);
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Ошибка сохранения настроек: {ex.Message}");
+            }
+        }
+
         private void SettingsButton_Click(object sender, RoutedEventArgs e)
         {
-            var settingsWindow = new SettingsWindow();
+            var settingsWindow = new SettingsWindow(highlightOnlyPinned);
             settingsWindow.Owner = this;
-            settingsWindow.ShowDialog();
+            if (settingsWindow.ShowDialog() == true)
+            {
+                highlightOnlyPinned = settingsWindow.HighlightOnlyPinned;
+                // Применяем новую горячую клавишу, если выбрана
+                if (!string.IsNullOrEmpty(settingsWindow.SelectedHotkeyValue))
+                {
+                    try
+                    {
+                        pinHotkey?.Dispose();
+                        var (modifiers, key) = ParseHotkeyString(settingsWindow.SelectedHotkeyValue);
+                        pinHotkey = new Hotkey(modifiers, key);
+                        pinHotkey.Pressed += (s, args) => ToggleActiveWindow();
+                        SaveSettings(settingsWindow.SelectedHotkeyValue);
+                        ShowStatus($"Горячая клавиша изменена на: {settingsWindow.SelectedHotkeyValue}");
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show($"Ошибка при установке горячей клавиши: {ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                    }
+                }
+                else
+                {
+                    // Сохраняем только настройку выделения
+                    SaveAllSettings();
+                }
+            }
         }
 
         private void MinimizeButton_Click(object sender, RoutedEventArgs e)
@@ -355,20 +449,6 @@ namespace SmartPins
             mouseHook?.Dispose();
             pinManager?.Dispose();
             base.OnClosing(e);
-        }
-
-        private void UpdateStatistics()
-        {
-            var pinnedCount = pinManager.GetPinnedWindows().Count();
-            var totalCount = GetTotalWindowsCount();
-            
-            PinnedWindowsCount.Text = pinnedCount.ToString();
-            TotalWindowsCount.Text = totalCount.ToString();
-        }
-
-        private int GetTotalWindowsCount()
-        {
-            return Process.GetProcesses().Length;
         }
 
         private void HotkeyButton_Click(object sender, RoutedEventArgs e)
@@ -448,11 +528,117 @@ namespace SmartPins
             
             return (modifiers, key);
         }
+
+        public void SetHighlightOnlyPinned(bool value)
+        {
+            highlightOnlyPinned = value;
+            if (pinManager != null)
+            {
+                pinManager.HighlightOnlyPinned = highlightOnlyPinned;
+                if (highlightOnlyPinned)
+                {
+                    // Оставить рамки только у закреплённых окон
+                    foreach (var hwnd in pinManager.GetPinnedWindows())
+                    {
+                        pinManager.PinWindow(hwnd); // гарантируем, что рамка есть
+                    }
+                }
+                else
+                {
+                    // Убрать только рамки, не открепляя окна
+                    pinManager.RemoveAllPinIndicators();
+                }
+            }
+            // Сохраняем настройку
+            SaveAllSettings();
+        }
+
+        private void RefreshWindowsList()
+        {
+            Windows.Clear();
+            int pinnedCount = 0;
+            int visibleCount = 0;
+            EnumWindows((hWnd, lParam) =>
+            {
+                if (!IsWindowVisible(hWnd)) return true;
+                int length = GetWindowTextLength(hWnd);
+                if (length == 0) return true;
+                var builder = new StringBuilder(length + 1);
+                GetWindowText(hWnd, builder, builder.Capacity);
+                string title = builder.ToString();
+                if (string.IsNullOrWhiteSpace(title)) return true;
+                // Не показываем само главное окно
+                if (hWnd == new System.Windows.Interop.WindowInteropHelper(this).Handle) return true;
+                // Получаем иконку
+                var icon = GetWindowIcon(hWnd);
+                // Проверяем закреплено ли окно
+                bool isPinned = pinManager.IsWindowPinned(hWnd);
+                if (isPinned) pinnedCount++;
+                Windows.Add(new WindowInfo
+                {
+                    Handle = hWnd,
+                    Title = title,
+                    Icon = icon,
+                    IsPinned = isPinned,
+                    PinButtonText = isPinned ? "Открепить" : "Закрепить",
+                    PinColor = isPinned ? new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FF00B294")) : new SolidColorBrush((Color)ColorConverter.ConvertFromString("#FFAAAAAA")),
+                    PinCommand = new RelayCommand(() => TogglePin(hWnd))
+                });
+                visibleCount++;
+                return true;
+            }, IntPtr.Zero);
+            // Обновляем счетчики
+            PinnedWindowsCount.Text = pinnedCount.ToString();
+            VisibleWindowsCount.Text = visibleCount.ToString();
+        }
+
+        private void TogglePin(IntPtr hWnd)
+        {
+            if (pinManager.IsWindowPinned(hWnd))
+                pinManager.UnpinWindow(hWnd);
+            else
+                pinManager.PinWindow(hWnd);
+            RefreshWindowsList();
+        }
+
+        // Получение иконки окна
+        private ImageSource? GetWindowIcon(IntPtr hWnd)
+        {
+            try
+            {
+                const int GCL_HICON = -14;
+                IntPtr hIcon = SendMessage(hWnd, WM_GETICON, 1, 0);
+                if (hIcon == IntPtr.Zero)
+                    hIcon = GetClassLongPtr(hWnd, GCL_HICON);
+                if (hIcon == IntPtr.Zero)
+                    return null;
+                var img = Imaging.CreateBitmapSourceFromHIcon(hIcon, Int32Rect.Empty, BitmapSizeOptions.FromWidthAndHeight(20, 20));
+                img.Freeze();
+                return img;
+            }
+            catch { return null; }
+        }
+
+        // WinAPI
+        private delegate bool EnumWindowsProc(IntPtr hWnd, IntPtr lParam);
+        private const int WM_GETICON = 0x7F;
+
+        public class WindowInfo
+        {
+            public IntPtr Handle { get; set; }
+            public string Title { get; set; } = string.Empty;
+            public ImageSource? Icon { get; set; }
+            public bool IsPinned { get; set; }
+            public string PinButtonText { get; set; } = "Закрепить";
+            public Brush PinColor { get; set; } = Brushes.Gray;
+            public ICommand? PinCommand { get; set; }
+        }
     }
 
     public class AppSettings
     {
         public string Hotkey { get; set; } = "Ctrl+Alt+P";
+        public bool HighlightOnlyPinned { get; set; } = false;
     }
 
     public class RelayCommand : ICommand

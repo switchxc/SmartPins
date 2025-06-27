@@ -95,6 +95,8 @@ namespace SmartPins
             }
         }
 
+        public bool HighlightOnlyPinned { get; set; } = true;
+
         public void PinWindow(IntPtr windowHandle)
         {
             if (pinnedWindows.ContainsKey(windowHandle))
@@ -105,8 +107,9 @@ namespace SmartPins
                 // Закрепляем окно
                 SetWindowPos(windowHandle, new IntPtr(-1), 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_SHOWWINDOW);
                 
-                // Добавляем визуальную индикацию
-                AddPinIndicator(windowHandle);
+                // Добавляем визуальную индикацию только если HighlightOnlyPinned
+                if (HighlightOnlyPinned)
+                    AddPinIndicator(windowHandle);
                 
                 pinnedWindows[windowHandle] = true;
                 WindowPinned?.Invoke(this, new WindowPinEventArgs(windowHandle));
@@ -266,6 +269,28 @@ namespace SmartPins
                     if (!IsWindow(windowHandle))
                         return;
 
+                    // Получаем заголовок и имя процесса
+                    var title = GetWindowTitle(windowHandle);
+                    var process = GetProcessName(windowHandle);
+
+                    // Получаем класс окна
+                    var className = new System.Text.StringBuilder(256);
+                    NativeMethods.GetClassName(windowHandle, className, className.Capacity);
+
+                    // Проверка: рабочий стол, пустое место, taskbar
+                    if (string.IsNullOrWhiteSpace(title) ||
+                        title == "Program Manager" ||
+                        (process == "explorer" && className.ToString() == "Shell_TrayWnd"))
+                    {
+                        System.Windows.MessageBox.Show(
+                            "Нельзя закрепить рабочий стол, пустое место или панель задач!",
+                            "Ошибка закрепления",
+                            System.Windows.MessageBoxButton.OK,
+                            System.Windows.MessageBoxImage.Warning);
+                        IsPinMode = false;
+                        return;
+                    }
+
                     // Переключаем состояние закрепления
                     if (IsWindowPinned(windowHandle))
                     {
@@ -294,6 +319,37 @@ namespace SmartPins
                 try { indicator.Close(); } catch { }
             }
             pinIndicators.Clear();
+        }
+
+        public static string GetWindowTitle(IntPtr handle)
+        {
+            var buffer = new System.Text.StringBuilder(256);
+            _ = NativeMethods.GetWindowText(handle, buffer, buffer.Capacity);
+            return buffer.ToString();
+        }
+
+        public static string GetProcessName(IntPtr handle)
+        {
+            _ = NativeMethods.GetWindowThreadProcessId(handle, out uint processId);
+            try
+            {
+                var proc = System.Diagnostics.Process.GetProcessById((int)processId);
+                return proc.ProcessName;
+            }
+            catch
+            {
+                return string.Empty;
+            }
+        }
+
+        // Новый метод для снятия всех рамок, не открепляя окна
+        public void RemoveAllPinIndicators()
+        {
+            var handles = pinIndicators.Keys.ToList();
+            foreach (var hwnd in handles)
+            {
+                RemovePinIndicator(hwnd);
+            }
         }
     }
 
@@ -485,5 +541,8 @@ namespace SmartPins
 
         [System.Runtime.InteropServices.DllImport("user32.dll")]
         public static extern int GetWindowThreadProcessId(IntPtr hWnd, out uint processId);
+
+        [System.Runtime.InteropServices.DllImport("user32.dll")]
+        public static extern int GetClassName(IntPtr hWnd, System.Text.StringBuilder lpClassName, int nMaxCount);
     }
 } 

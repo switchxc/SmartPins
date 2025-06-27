@@ -3,6 +3,22 @@
   "WorkspaceRootPath": "C:\\Users\\snow\\source\\repos\\SmartPins\\",
   "Documents": [
     {
+      "AbsoluteMoniker": "D:0:0:{396F3BEF-B971-48DB-8F6C-FC13E3D7ADFB}|SmartPins\\SmartPins.csproj|c:\\users\\snow\\source\\repos\\smartpins\\smartpins\\mainwindow.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}",
+      "RelativeMoniker": "D:0:0:{396F3BEF-B971-48DB-8F6C-FC13E3D7ADFB}|SmartPins\\SmartPins.csproj|solutionrelative:smartpins\\mainwindow.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{396F3BEF-B971-48DB-8F6C-FC13E3D7ADFB}|SmartPins\\SmartPins.csproj|c:\\users\\snow\\source\\repos\\smartpins\\smartpins\\settingswindow.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}",
+      "RelativeMoniker": "D:0:0:{396F3BEF-B971-48DB-8F6C-FC13E3D7ADFB}|SmartPins\\SmartPins.csproj|solutionrelative:smartpins\\settingswindow.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{396F3BEF-B971-48DB-8F6C-FC13E3D7ADFB}|SmartPins\\SmartPins.csproj|c:\\users\\snow\\source\\repos\\smartpins\\smartpins\\hotkeywindow.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}",
+      "RelativeMoniker": "D:0:0:{396F3BEF-B971-48DB-8F6C-FC13E3D7ADFB}|SmartPins\\SmartPins.csproj|solutionrelative:smartpins\\hotkeywindow.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{396F3BEF-B971-48DB-8F6C-FC13E3D7ADFB}|SmartPins\\SmartPins.csproj|c:\\users\\snow\\source\\repos\\smartpins\\smartpins\\mainwindow.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{396F3BEF-B971-48DB-8F6C-FC13E3D7ADFB}|SmartPins\\SmartPins.csproj|solutionrelative:smartpins\\mainwindow.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{396F3BEF-B971-48DB-8F6C-FC13E3D7ADFB}|SmartPins\\SmartPins.csproj|c:\\users\\snow\\source\\repos\\smartpins\\smartpins\\windowpinmanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{396F3BEF-B971-48DB-8F6C-FC13E3D7ADFB}|SmartPins\\SmartPins.csproj|solutionrelative:smartpins\\windowpinmanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
@@ -18,24 +34,71 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 0,
+          "SelectedChildIndex": 3,
           "Children": [
             {
               "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "HotkeyWindow.xaml",
+              "DocumentMoniker": "C:\\Users\\snow\\source\\repos\\SmartPins\\SmartPins\\HotkeyWindow.xaml",
+              "RelativeDocumentMoniker": "SmartPins\\HotkeyWindow.xaml",
+              "ToolTip": "C:\\Users\\snow\\source\\repos\\SmartPins\\SmartPins\\HotkeyWindow.xaml",
+              "RelativeToolTip": "SmartPins\\HotkeyWindow.xaml",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003549|",
+              "WhenOpened": "2025-06-27T10:21:12.196Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "MainWindow.xaml.cs",
+              "DocumentMoniker": "C:\\Users\\snow\\source\\repos\\SmartPins\\SmartPins\\MainWindow.xaml.cs",
+              "RelativeDocumentMoniker": "SmartPins\\MainWindow.xaml.cs",
+              "ToolTip": "C:\\Users\\snow\\source\\repos\\SmartPins\\SmartPins\\MainWindow.xaml.cs",
+              "RelativeToolTip": "SmartPins\\MainWindow.xaml.cs",
+              "ViewState": "AgIAAA4BAAAAAAAAAIAwwCYBAAA8AAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-06-27T09:40:42.421Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "SettingsWindow.xaml",
+              "DocumentMoniker": "C:\\Users\\snow\\source\\repos\\SmartPins\\SmartPins\\SettingsWindow.xaml",
+              "RelativeDocumentMoniker": "SmartPins\\SettingsWindow.xaml",
+              "ToolTip": "C:\\Users\\snow\\source\\repos\\SmartPins\\SmartPins\\SettingsWindow.xaml",
+              "RelativeToolTip": "SmartPins\\SettingsWindow.xaml",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003549|",
+              "WhenOpened": "2025-06-27T09:00:41.912Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
               "DocumentIndex": 0,
+              "Title": "MainWindow.xaml",
+              "DocumentMoniker": "C:\\Users\\snow\\source\\repos\\SmartPins\\SmartPins\\MainWindow.xaml",
+              "RelativeDocumentMoniker": "SmartPins\\MainWindow.xaml",
+              "ToolTip": "C:\\Users\\snow\\source\\repos\\SmartPins\\SmartPins\\MainWindow.xaml",
+              "RelativeToolTip": "SmartPins\\MainWindow.xaml",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003549|",
+              "WhenOpened": "2025-06-27T08:16:17.653Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
               "Title": "WindowPinManager.cs",
               "DocumentMoniker": "C:\\Users\\snow\\source\\repos\\SmartPins\\SmartPins\\WindowPinManager.cs",
               "RelativeDocumentMoniker": "SmartPins\\WindowPinManager.cs",
               "ToolTip": "C:\\Users\\snow\\source\\repos\\SmartPins\\SmartPins\\WindowPinManager.cs",
               "RelativeToolTip": "SmartPins\\WindowPinManager.cs",
-              "ViewState": "AgIAAB8BAAAAAAAAAAAqwCQBAAANAAAAAAAAAA==",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAADYBAAANAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-06-27T01:33:25.192Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-06-27T01:33:25.192Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 5,
               "Title": "PinIndicatorWindow.xaml",
               "DocumentMoniker": "C:\\Users\\snow\\source\\repos\\SmartPins\\SmartPins\\PinIndicatorWindow.xaml",
               "RelativeDocumentMoniker": "SmartPins\\PinIndicatorWindow.xaml",

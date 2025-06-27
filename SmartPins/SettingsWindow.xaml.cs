@@ -4,10 +4,28 @@ namespace SmartPins
 {
     public partial class SettingsWindow : Window
     {
-        public SettingsWindow()
+        public bool HighlightOnlyPinned { get; private set; }
+        private string? SelectedHotkey;
+
+        public string? SelectedHotkeyValue => SelectedHotkey;
+
+        public SettingsWindow(bool highlightOnlyPinned = false)
         {
             InitializeComponent();
-            // Здесь можно добавить инициализацию состояния тумблера и других новых элементов
+            HighlightOnlyPinnedToggle.IsChecked = highlightOnlyPinned;
+            HighlightOnlyPinned = highlightOnlyPinned;
+            HighlightOnlyPinnedToggle.Checked += HighlightOnlyPinnedToggle_Changed;
+            HighlightOnlyPinnedToggle.Unchecked += HighlightOnlyPinnedToggle_Changed;
+        }
+
+        private void HighlightOnlyPinnedToggle_Changed(object sender, RoutedEventArgs e)
+        {
+            HighlightOnlyPinned = HighlightOnlyPinnedToggle.IsChecked == true;
+            // Мгновенно применяем настройку в главном окне
+            if (Owner is MainWindow mainWindow)
+            {
+                mainWindow.SetHighlightOnlyPinned(HighlightOnlyPinned);
+            }
         }
 
         private void DarkThemeToggle_Checked(object sender, RoutedEventArgs e)
@@ -22,12 +40,25 @@ namespace SmartPins
 
         private void HotkeyButton_Click(object sender, RoutedEventArgs e)
         {
-            // Открыть окно для выбора горячей клавиши
+            var hotkeyWindow = new HotkeyWindow();
+            hotkeyWindow.Owner = this;
+            if (hotkeyWindow.ShowDialog() == true)
+            {
+                if (!string.IsNullOrEmpty(hotkeyWindow.SelectedHotkey))
+                {
+                    SelectedHotkey = hotkeyWindow.SelectedHotkey;
+                }
+            }
         }
 
         private void SaveButton_Click(object sender, RoutedEventArgs e)
         {
-            // Сохранить настройки (тема, горячая клавиша)
+            DialogResult = true;
+            this.Close();
+        }
+
+        private void CloseButton_Click(object sender, RoutedEventArgs e)
+        {
             this.Close();
         }
     }

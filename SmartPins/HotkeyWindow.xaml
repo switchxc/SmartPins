@@ -95,6 +95,37 @@
                     </Setter.Value>
                 </Setter>
             </Style>
+            
+            <!-- Стиль для кнопок заголовка окна -->
+            <Style x:Key="TitleBarButtonStyle" TargetType="Button" BasedOn="{StaticResource MaterialDesignIconButton}">
+                <Setter Property="Background" Value="Transparent"/>
+                <Setter Property="Foreground" Value="{StaticResource Win11TextSecondary}"/>
+                <Setter Property="BorderThickness" Value="0"/>
+                <Setter Property="Padding" Value="0"/>
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="Button">
+                            <Border Background="{TemplateBinding Background}"
+                                    CornerRadius="4"
+                                    BorderThickness="{TemplateBinding BorderThickness}"
+                                    BorderBrush="{TemplateBinding BorderBrush}">
+                                <ContentPresenter HorizontalAlignment="Center" 
+                                                VerticalAlignment="Center"
+                                                Margin="{TemplateBinding Padding}"/>
+                            </Border>
+                            <ControlTemplate.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter Property="Background" Value="{StaticResource Win11HoverBackground}"/>
+                                    <Setter Property="Foreground" Value="{StaticResource Win11TextPrimary}"/>
+                                </Trigger>
+                                <Trigger Property="IsPressed" Value="True">
+                                    <Setter Property="Background" Value="#FF404040"/>
+                                </Trigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
         </ResourceDictionary>
     </Window.Resources>
 
@@ -145,20 +176,16 @@
                                 Orientation="Horizontal" 
                                 VerticalAlignment="Top"
                                 Margin="0,8,8,0">
-                        <Button Style="{DynamicResource MaterialDesignIconButton}"
+                        <Button Style="{StaticResource TitleBarButtonStyle}"
                                 Click="MinimizeButton_Click"
-                                Width="32" Height="32"
-                                Padding="0"
-                                Background="Transparent"
-                                Foreground="{StaticResource Win11TextSecondary}">
+                                Width="46" Height="32"
+                                ToolTip="Свернуть">
                             <materialDesign:PackIcon Kind="Minus" Width="16" Height="16"/>
                         </Button>
-                        <Button Style="{DynamicResource MaterialDesignIconButton}"
+                        <Button Style="{StaticResource TitleBarButtonStyle}"
                                 Click="CloseButton_Click"
-                                Width="32" Height="32"
-                                Padding="0"
-                                Background="Transparent"
-                                Foreground="{StaticResource Win11TextSecondary}">
+                                Width="46" Height="32"
+                                ToolTip="Закрыть">
                             <materialDesign:PackIcon Kind="Close" Width="16" Height="16"/>
                         </Button>
                     </StackPanel>
@@ -217,7 +244,7 @@
                                     BorderBrush="{StaticResource Win11Border}"
                                     BorderThickness="1"
                                     Padding="16,12"
-                                    Margin="0,0,0,16">
+                                    Margin="0,0,0,16" Height="51">
                                 <TextBlock x:Name="HotkeyDisplay" 
                                            Text="Нажмите клавиши..." 
                                            FontSize="16"
@@ -230,7 +257,7 @@
                             <Button Style="{StaticResource Win11OutlinedButtonStyle}"
                                     Click="ClearButton_Click"
                                     HorizontalAlignment="Center"
-                                    Width="120">
+                                    Width="120" Height="39">
                                 <StackPanel Orientation="Horizontal">
                                     <materialDesign:PackIcon Kind="Refresh" Width="16" Height="16" Margin="0,0,8,0"/>
                                     <TextBlock Text="Очистить"/>
@@ -312,12 +339,12 @@
                     <Button Style="{StaticResource Win11OutlinedButtonStyle}"
                             Click="CancelButton_Click"
                             Margin="0,0,12,0"
-                            Width="100">
-                        <TextBlock Text="Отмена"/>
+                            Width="100" Height="32">
+                        <TextBlock Text="Отмена" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                     </Button>
                     <Button Style="{StaticResource Win11ButtonStyle}"
                             Click="SaveButton_Click"
-                            Width="120">
+                            Width="131" VerticalAlignment="Center">
                         <StackPanel Orientation="Horizontal">
                             <materialDesign:PackIcon Kind="ContentSave" Width="16" Height="16" Margin="0,0,8,0"/>
                             <TextBlock Text="Сохранить"/>
