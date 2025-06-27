@@ -84,37 +84,37 @@ jobs:
       
     - name: Create Single File Release (Framework-dependent)
       run: |
-        dotnet publish ${{ env.PROJECT_FILE }} \
-          --configuration Release \
-          --output ./publish-framework \
-          --self-contained false \
-          -p:PublishSingleFile=true \
-          -p:PublishTrimmed=true \
-          -p:DebugType=None \
-          -p:DebugSymbols=false \
+        dotnet publish ${{ env.PROJECT_FILE }} `
+          --configuration Release `
+          --output ./publish-framework `
+          --self-contained false `
+          -p:PublishSingleFile=true `
+          -p:PublishTrimmed=true `
+          -p:DebugType=None `
+          -p:DebugSymbols=false `
           -p:IncludeNativeLibrariesForSelfExtract=true
         
     - name: Create Single File Release (Self-contained)
       run: |
-        dotnet publish ${{ env.PROJECT_FILE }} \
-          --configuration Release \
-          --output ./publish-self-contained \
-          --self-contained true \
-          --runtime win-x64 \
-          -p:PublishSingleFile=true \
-          -p:PublishTrimmed=true \
-          -p:DebugType=None \
-          -p:DebugSymbols=false \
-          -p:IncludeNativeLibrariesForSelfExtract=true \
+        dotnet publish ${{ env.PROJECT_FILE }} `
+          --configuration Release `
+          --output ./publish-self-contained `
+          --self-contained true `
+          --runtime win-x64 `
+          -p:PublishSingleFile=true `
+          -p:PublishTrimmed=true `
+          -p:DebugType=None `
+          -p:DebugSymbols=false `
+          -p:IncludeNativeLibrariesForSelfExtract=true `
           -p:EnableCompressionInSingleFile=true
         
     - name: Create Portable Release
       run: |
-        dotnet publish ${{ env.PROJECT_FILE }} \
-          --configuration Release \
-          --output ./publish-portable \
-          --self-contained false \
-          -p:PublishSingleFile=false \
+        dotnet publish ${{ env.PROJECT_FILE }} `
+          --configuration Release `
+          --output ./publish-portable `
+          --self-contained false `
+          -p:PublishSingleFile=false `
           -p:PublishTrimmed=false
         
     - name: Get version info
@@ -176,4 +176,4 @@ jobs:
         draft: false
         prerelease: false
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} 
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
