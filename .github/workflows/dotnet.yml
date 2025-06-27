@@ -1,0 +1,69 @@
+# This workflow will build a .NET WPF project
+# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-net
+
+name: Build SmartPins
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    runs-on: windows-latest  # WPF приложения требуют Windows
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup .NET 8.0
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 8.0.x
+        
+    - name: Restore dependencies
+      run: dotnet restore SmartPins.sln
+      
+    - name: Build
+      run: dotnet build SmartPins.sln --configuration Release --no-restore
+      
+    - name: Create release artifacts (Framework-dependent)
+      run: |
+        # Framework-dependent: требует .NET 8.0 на компьютере пользователя
+        # Размер: ~10-20 МБ
+        dotnet publish SmartPins/SmartPins.csproj --configuration Release --output ./publish-framework --self-contained false
+        
+    - name: Create release artifacts (Self-contained)
+      run: |
+        # Self-contained: включает .NET Runtime, работает везде
+        # Размер: ~100-200 МБ
+        dotnet publish SmartPins/SmartPins.csproj --configuration Release --output ./publish-self-contained --self-contained true --runtime win-x64
+        
+    - name: Upload framework-dependent artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: SmartPins-Framework-Dependent
+        path: ./publish-framework/
+        retention-days: 30
+        
+    - name: Upload self-contained artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: SmartPins-Self-Contained
+        path: ./publish-self-contained/
+        retention-days: 30
+        
+    - name: Create ZIP archives
+      run: |
+        Compress-Archive -Path ./publish-framework/* -DestinationPath ./SmartPins-Framework-Dependent.zip
+        Compress-Archive -Path ./publish-self-contained/* -DestinationPath ./SmartPins-Self-Contained.zip
+        
+    - name: Upload ZIP artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: SmartPins-ZIP-Archives
+        path: |
+          ./SmartPins-Framework-Dependent.zip
+          ./SmartPins-Self-Contained.zip
+        retention-days: 30 
