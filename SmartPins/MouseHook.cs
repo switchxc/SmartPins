@@ -1,9 +1,11 @@
 using System;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
+using System.Runtime.Versioning;
 
 namespace SmartPins
 {
+    [SupportedOSPlatform("windows")]
     public class MouseHook : IDisposable
     {
         [DllImport("user32.dll")]
@@ -16,7 +18,7 @@ namespace SmartPins
         private static extern IntPtr CallNextHookEx(IntPtr hhk, int nCode, IntPtr wParam, IntPtr lParam);
 
         [DllImport("kernel32.dll")]
-        private static extern IntPtr GetModuleHandle(string lpModuleName);
+        private static extern IntPtr GetModuleHandle(string? lpModuleName);
 
         [DllImport("user32.dll")]
         private static extern IntPtr WindowFromPoint(POINT point);
@@ -52,7 +54,7 @@ namespace SmartPins
         private IntPtr _hookID = IntPtr.Zero;
         private readonly WindowPinManager _pinManager;
 
-        public event EventHandler<MouseHookEventArgs>? MouseClick;
+        public event EventHandler<MouseClickEventArgs>? MouseClick;
 
         public MouseHook(WindowPinManager pinManager)
         {
@@ -76,7 +78,7 @@ namespace SmartPins
         {
             if (nCode >= 0 && wParam == (IntPtr)WM_LBUTTONDOWN)
             {
-                var hookStruct = (MSLLHOOKSTRUCT)Marshal.PtrToStructure(lParam, typeof(MSLLHOOKSTRUCT));
+                var hookStruct = (MSLLHOOKSTRUCT)Marshal.PtrToStructure(lParam, typeof(MSLLHOOKSTRUCT))!;
                 var windowHandle = WindowFromPoint(hookStruct.pt);
 
                 if (windowHandle != IntPtr.Zero && IsWindow(windowHandle))
@@ -87,7 +89,7 @@ namespace SmartPins
                         var title = GetWindowTitle(windowHandle);
                         if (!string.IsNullOrEmpty(title) && title != "Program Manager")
                         {
-                            MouseClick?.Invoke(this, new MouseHookEventArgs(windowHandle, hookStruct.pt));
+                            MouseClick?.Invoke(this, new MouseClickEventArgs(windowHandle, hookStruct.pt));
                             
                             // Если включен режим закрепления, обрабатываем клик
                             if (_pinManager.IsPinMode)
@@ -116,12 +118,12 @@ namespace SmartPins
         }
     }
 
-    public class MouseHookEventArgs : EventArgs
+    public class MouseClickEventArgs : EventArgs
     {
         public IntPtr WindowHandle { get; }
         public MouseHook.POINT Point { get; }
 
-        public MouseHookEventArgs(IntPtr windowHandle, MouseHook.POINT point)
+        public MouseClickEventArgs(IntPtr windowHandle, MouseHook.POINT point)
         {
             WindowHandle = windowHandle;
             Point = point;

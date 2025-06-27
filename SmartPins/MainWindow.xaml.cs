@@ -19,12 +19,14 @@ using System.Windows.Threading;
 using MaterialDesignThemes.Wpf;
 using Hardcodet.Wpf.TaskbarNotification;
 using Newtonsoft.Json;
+using System.Runtime.Versioning;
 
 namespace SmartPins
 {
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
+    [SupportedOSPlatform("windows")]
     public partial class MainWindow : Window
     {
         [DllImport("user32.dll")]
@@ -265,7 +267,7 @@ namespace SmartPins
             });
         }
 
-        private void OnMouseClick(object? sender, MouseHookEventArgs e)
+        private void OnMouseClick(object? sender, MouseClickEventArgs e)
         {
             // Обработка клика мыши для режима закрепления
             if (pinManager.IsPinMode)

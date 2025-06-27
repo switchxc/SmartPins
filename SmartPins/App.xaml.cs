@@ -1,31 +1,45 @@
 ﻿using System;
 using System.Windows;
+using System.Windows.Threading;
+using Hardcodet.Wpf.TaskbarNotification;
 using MaterialDesignThemes.Wpf;
 using System.Drawing;
-using Hardcodet.Wpf.TaskbarNotification;
+using System.Runtime.Versioning;
 
 namespace SmartPins
 {
     /// <summary>
     /// Interaction logic for App.xaml
     /// </summary>
+    [SupportedOSPlatform("windows")]
     public partial class App : Application
     {
         private TaskbarIcon? taskbarIcon;
+        private WindowPinManager? pinManager;
+        private MouseHook? mouseHook;
 
         protected override void OnStartup(StartupEventArgs e)
         {
             base.OnStartup(e);
             try
             {
-                // Применяем тёмную тему по умолчанию
+                // Настройка темы Material Design
                 var paletteHelper = new PaletteHelper();
-                ITheme theme = paletteHelper.GetTheme();
+                var theme = paletteHelper.GetTheme();
                 theme.SetBaseTheme(Theme.Dark);
                 paletteHelper.SetTheme(theme);
 
                 // Создаём иконку в трее
                 CreateTrayIcon();
+                
+                // Инициализация менеджера закрепления окон
+                pinManager = new WindowPinManager();
+                pinManager.WindowPinned += OnWindowPinned;
+                pinManager.WindowUnpinned += OnWindowUnpinned;
+
+                // Инициализация хука мыши
+                mouseHook = new MouseHook(pinManager);
+                mouseHook.MouseClick += OnMouseClick;
                 
                 // Показываем главное окно при запуске
                 if (MainWindow != null)
@@ -85,13 +99,9 @@ namespace SmartPins
                 taskbarIcon.ContextMenu = contextMenu;
                 taskbarIcon.TrayMouseDoubleClick += (s, e) =>
                 {
-                    Application.Current.Dispatcher.Invoke(() =>
-                    {
-                        if (MainWindow is MainWindow mainWindow)
-                        {
-                            mainWindow.ToggleActiveWindow();
-                        }
-                    });
+                    // Включаем режим выбора приложения для закрепления
+                    if (pinManager != null)
+                        pinManager.IsPinMode = true;
                 };
             }
             catch (Exception ex)
@@ -106,9 +116,66 @@ namespace SmartPins
             }
         }
 
+        private void ShowMainWindow()
+        {
+            if (MainWindow != null)
+            {
+                MainWindow.Show();
+                MainWindow.WindowState = WindowState.Normal;
+                MainWindow.Activate();
+            }
+        }
+
+        private void TogglePinMode()
+        {
+            if (pinManager != null)
+            {
+                pinManager.IsPinMode = !pinManager.IsPinMode;
+                var menuItem = taskbarIcon?.ContextMenu?.Items[0] as System.Windows.Controls.MenuItem;
+                if (menuItem != null)
+                {
+                    menuItem.Header = pinManager.IsPinMode ? "Отключить режим закрепления" : "Режим закрепления";
+                }
+            }
+        }
+
+        private void ShowSettings()
+        {
+            var settingsWindow = new SettingsWindow();
+            settingsWindow.ShowDialog();
+        }
+
+        private void OnMouseClick(object? sender, MouseClickEventArgs e)
+        {
+            if (pinManager != null)
+            {
+                pinManager.HandleMouseClick(e.WindowHandle);
+            }
+        }
+
+        private void OnWindowPinned(object? sender, WindowPinEventArgs e)
+        {
+            Dispatcher.Invoke(() =>
+            {
+                // BalloonTip вместо ShowNotification
+                taskbarIcon?.ShowBalloonTip("Окно закреплено", $"Окно '{e.WindowTitle}' закреплено поверх других окон", BalloonIcon.Info);
+            });
+        }
+
+        private void OnWindowUnpinned(object? sender, WindowPinEventArgs e)
+        {
+            Dispatcher.Invoke(() =>
+            {
+                // BalloonTip вместо ShowNotification
+                taskbarIcon?.ShowBalloonTip("Окно откреплено", $"Окно '{e.WindowTitle}' откреплено", BalloonIcon.Info);
+            });
+        }
+
         protected override void OnExit(ExitEventArgs e)
         {
             taskbarIcon?.Dispose();
+            mouseHook?.Dispose();
+            pinManager?.Dispose();
             base.OnExit(e);
         }
     }

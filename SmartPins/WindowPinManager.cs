@@ -9,9 +9,12 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using System.Threading;
+using System.Runtime.Versioning;
+using System.Windows.Threading;
 
 namespace SmartPins
 {
+    [SupportedOSPlatform("windows")]
     public class WindowPinManager
     {
         [DllImport("user32.dll")]
@@ -30,31 +33,13 @@ namespace SmartPins
         private static extern bool ShowWindow(IntPtr hWnd, int nCmdShow);
 
         [DllImport("user32.dll")]
-        private static extern IntPtr CreateWindowEx(
-            uint dwExStyle,
-            string lpClassName,
-            string lpWindowName,
-            uint dwStyle,
-            int X,
-            int Y,
-            int nWidth,
-            int nHeight,
-            IntPtr hWndParent,
-            IntPtr hMenu,
-            IntPtr hInstance,
-            IntPtr lpParam);
+        private static extern bool IsWindow(IntPtr hWnd);
 
         [DllImport("user32.dll")]
-        private static extern IntPtr GetModuleHandle(string lpModuleName);
+        private static extern IntPtr GetWindowLongPtr(IntPtr hWnd, int nIndex);
 
         [DllImport("user32.dll")]
-        private static extern bool SetLayeredWindowAttributes(IntPtr hwnd, uint crKey, byte bAlpha, uint dwFlags);
-
-        [DllImport("user32.dll")]
-        private static extern bool DestroyWindow(IntPtr hWnd);
-
-        [DllImport("user32.dll")]
-        private static extern bool MoveWindow(IntPtr hWnd, int X, int Y, int nWidth, int nHeight, bool bRepaint);
+        private static extern IntPtr SetWindowLongPtr(IntPtr hWnd, int nIndex, IntPtr dwNewLong);
 
         [StructLayout(LayoutKind.Sequential)]
         public struct RECT
@@ -69,19 +54,24 @@ namespace SmartPins
         private const int WS_EX_LAYERED = 0x80000;
         private const int WS_EX_TOPMOST = 0x00008;
         private const int WS_EX_TOOLWINDOW = 0x00000080;
+        private const int WS_EX_TRANSPARENT = 0x00000020;
+        private const int WS_EX_NOACTIVATE = 0x08000000;
         private const uint SWP_NOMOVE = 0x0002;
         private const uint SWP_NOSIZE = 0x0001;
         private const uint SWP_NOZORDER = 0x0004;
         private const uint SWP_SHOWWINDOW = 0x0040;
+        private const uint SWP_NOACTIVATE = 0x0010;
         private const int SW_SHOW = 5;
         private const int SW_HIDE = 0;
         private const uint LWA_ALPHA = 0x00000002;
-        private static readonly IntPtr HWND_TOPMOST = new IntPtr(-1);
+        private const uint ULW_ALPHA = 0x00000002;
+        private const int TRANSPARENT = 1;
+        private const int PS_SOLID = 0;
+        private static readonly IntPtr HWND_BOTTOM = new IntPtr(1);
         private static readonly IntPtr HWND_NOTOPMOST = new IntPtr(-2);
 
         private readonly Dictionary<IntPtr, bool> pinnedWindows = new();
-        private readonly Dictionary<IntPtr, IntPtr> borderWindows = new(); // Окна-индикаторы
-        private readonly Dictionary<IntPtr, WindowBorderOverlay> borderOverlays = new();
+        private readonly Dictionary<IntPtr, PinIndicatorWindow> pinIndicators = new();
         private bool isPinMode = false;
         private Cursor? originalCursor;
 
@@ -113,7 +103,7 @@ namespace SmartPins
             try
             {
                 // Закрепляем окно
-                SetWindowPos(windowHandle, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_SHOWWINDOW);
+                SetWindowPos(windowHandle, new IntPtr(-1), 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_SHOWWINDOW);
                 
                 // Добавляем визуальную индикацию
                 AddPinIndicator(windowHandle);
@@ -135,7 +125,7 @@ namespace SmartPins
             try
             {
                 // Открепляем окно
-                SetWindowPos(windowHandle, HWND_NOTOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_SHOWWINDOW);
+                SetWindowPos(windowHandle, new IntPtr(-2), 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_SHOWWINDOW);
                 
                 // Убираем визуальную индикацию
                 RemovePinIndicator(windowHandle);
@@ -159,27 +149,26 @@ namespace SmartPins
             return pinnedWindows.Keys;
         }
 
+        public void UnpinAllWindows()
+        {
+            var windowsToUnpin = new List<IntPtr>(pinnedWindows.Keys);
+            foreach (var windowHandle in windowsToUnpin)
+            {
+                UnpinWindow(windowHandle);
+            }
+        }
+
         private void EnablePinMode()
         {
-            try
+            if (originalCursor == null)
             {
-                // Сохраняем текущий курсор
                 originalCursor = Cursor.Current;
-                
-                // Создаем курсор-иконку закрепления
-                var pinCursor = CreatePinCursor();
-                Cursor.Current = pinCursor;
             }
-            catch (Exception ex)
-            {
-                System.Windows.MessageBox.Show($"Ошибка активации режима закрепления: {ex.Message}", "Ошибка", 
-                    System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Warning);
-            }
+            Cursor.Current = CreatePinCursor();
         }
 
         private void DisablePinMode()
         {
-            // Восстанавливаем оригинальный курсор
             if (originalCursor != null)
             {
                 Cursor.Current = originalCursor;
@@ -189,40 +178,50 @@ namespace SmartPins
 
         private Cursor CreatePinCursor()
         {
-            // Создаем простую иконку закрепления
-            var bitmap = new Bitmap(32, 32);
-            using (var graphics = Graphics.FromImage(bitmap))
+            try
             {
-                graphics.Clear(System.Drawing.Color.Transparent);
-                
-                // Рисуем иконку закрепления
-                using (var pen = new System.Drawing.Pen(System.Drawing.Color.Blue, 2))
-                using (var brush = new System.Drawing.SolidBrush(System.Drawing.Color.Blue))
+                var bitmap = new Bitmap(32, 32);
+                using (var g = Graphics.FromImage(bitmap))
                 {
-                    // Рисуем булавку
-                    graphics.FillEllipse(brush, 12, 8, 8, 8);
-                    graphics.DrawLine(pen, 16, 16, 16, 24);
-                    graphics.DrawLine(pen, 12, 20, 20, 20);
+                    g.Clear(System.Drawing.Color.Transparent);
+                    using (var pen = new System.Drawing.Pen(System.Drawing.Color.White, 2))
+                    using (var brush = new SolidBrush(System.Drawing.Color.White))
+                    {
+                        // Рисуем рамку
+                        g.DrawRectangle(pen, 2, 2, 28, 28);
+                        // Рисуем булавку
+                        g.FillEllipse(brush, 12, 8, 8, 8);
+                        g.DrawLine(pen, 16, 16, 16, 24);
+                    }
                 }
+                return new Cursor(bitmap.GetHicon());
             }
-
-            return new Cursor(bitmap.GetHicon());
+            catch
+            {
+                return Cursors.Cross;
+            }
         }
 
         private void AddPinIndicator(IntPtr windowHandle)
         {
             try
             {
-                if (!borderOverlays.ContainsKey(windowHandle))
+                Console.WriteLine($"AddPinIndicator: Добавляем рамку для окна {windowHandle}");
+                if (!pinIndicators.ContainsKey(windowHandle))
                 {
-                    var overlay = new WindowBorderOverlay(windowHandle);
-                    borderOverlays[windowHandle] = overlay;
-                    overlay.Show();
+                    var indicator = new PinIndicatorWindow(windowHandle);
+                    pinIndicators[windowHandle] = indicator;
+                    indicator.Show();
+                    Console.WriteLine($"AddPinIndicator: Рамка создана и показана");
+                }
+                else
+                {
+                    Console.WriteLine($"AddPinIndicator: Рамка уже существует для окна {windowHandle}");
                 }
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"Ошибка добавления рамки: {ex.Message}");
+                Console.WriteLine($"Ошибка добавления рамки: {ex.Message}");
             }
         }
 
@@ -230,16 +229,21 @@ namespace SmartPins
         {
             try
             {
-                if (borderOverlays.TryGetValue(windowHandle, out var overlay))
+                Console.WriteLine($"RemovePinIndicator: Удаляем рамку для окна {windowHandle}");
+                if (pinIndicators.TryGetValue(windowHandle, out var indicator))
                 {
-                    overlay.Hide();
-                    overlay.Dispose();
-                    borderOverlays.Remove(windowHandle);
+                    indicator.Close();
+                    pinIndicators.Remove(windowHandle);
+                    Console.WriteLine($"RemovePinIndicator: Рамка удалена");
+                }
+                else
+                {
+                    Console.WriteLine($"RemovePinIndicator: Рамка не найдена для окна {windowHandle}");
                 }
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"Ошибка удаления рамки: {ex.Message}");
+                Console.WriteLine($"Ошибка удаления рамки: {ex.Message}");
             }
         }
 
@@ -258,9 +262,8 @@ namespace SmartPins
                     if (windowHandle == mainWindowHandle)
                         return;
 
-                    // Получаем заголовок окна для проверки
-                    var title = GetWindowTitle(windowHandle);
-                    if (string.IsNullOrEmpty(title) || title == "Program Manager")
+                    // Проверяем, что окно существует
+                    if (!IsWindow(windowHandle))
                         return;
 
                     // Переключаем состояние закрепления
@@ -272,44 +275,171 @@ namespace SmartPins
                     {
                         PinWindow(windowHandle);
                     }
-                }
-                catch (Exception ex)
-                {
-                    System.Windows.MessageBox.Show($"Ошибка обработки клика: {ex.Message}", "Ошибка", 
-                        System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Warning);
-                }
-                finally
-                {
+
                     // Отключаем режим закрепления после клика
                     IsPinMode = false;
                 }
-            }
-        }
-
-        private string GetWindowTitle(IntPtr handle)
-        {
-            var buffer = new System.Text.StringBuilder(256);
-            _ = NativeMethods.GetWindowText(handle, buffer, buffer.Capacity);
-            return buffer.ToString();
-        }
-
-        public void UnpinAllWindows()
-        {
-            // Копируем ключи, чтобы избежать модификации коллекции во время итерации
-            foreach (var handle in GetPinnedWindows().ToList())
-            {
-                UnpinWindow(handle);
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Ошибка обработки клика: {ex.Message}");
+                }
             }
         }
 
         public void Dispose()
         {
             // Уничтожаем все рамки при закрытии
-            foreach (var overlay in borderOverlays.Values)
+            foreach (var indicator in pinIndicators.Values)
             {
-                try { overlay.Dispose(); } catch { }
+                try { indicator.Close(); } catch { }
             }
-            borderOverlays.Clear();
+            pinIndicators.Clear();
+        }
+    }
+
+    // Крутое окно-индикатор закрепления с анимированной рамкой
+    [SupportedOSPlatform("windows")]
+    public class PinIndicatorWindow : Window
+    {
+        private readonly IntPtr _targetWindow;
+        private readonly DispatcherTimer _syncTimer;
+        private readonly DispatcherTimer _animationTimer;
+
+        [DllImport("user32.dll")]
+        private static extern bool GetWindowRect(IntPtr hWnd, out RECT lpRect);
+
+        [DllImport("user32.dll")]
+        private static extern bool IsWindow(IntPtr hWnd);
+
+        [DllImport("user32.dll")]
+        private static extern bool SetWindowPos(IntPtr hWnd, IntPtr hWndInsertAfter, int X, int Y, int cx, int cy, uint uFlags);
+
+        [DllImport("user32.dll")]
+        private static extern IntPtr GetWindowLongPtr(IntPtr hWnd, int nIndex);
+
+        [DllImport("user32.dll")]
+        private static extern IntPtr SetWindowLongPtr(IntPtr hWnd, int nIndex, IntPtr dwNewLong);
+
+        private const int GWL_EXSTYLE = -20;
+        private const int WS_EX_TRANSPARENT = 0x00000020;
+        private const int WS_EX_NOACTIVATE = 0x08000000;
+        private const uint SWP_NOMOVE = 0x0002;
+        private const uint SWP_NOSIZE = 0x0001;
+        private const uint SWP_NOACTIVATE = 0x0010;
+        private const uint SWP_SHOWWINDOW = 0x0040;
+
+        [StructLayout(LayoutKind.Sequential)]
+        public struct RECT
+        {
+            public int Left;
+            public int Top;
+            public int Right;
+            public int Bottom;
+        }
+
+        public PinIndicatorWindow(IntPtr targetWindow)
+        {
+            _targetWindow = targetWindow;
+            
+            // Настройка окна
+            WindowStyle = WindowStyle.None;
+            AllowsTransparency = true;
+            Background = System.Windows.Media.Brushes.Transparent;
+            Topmost = true;
+            ShowInTaskbar = false;
+            ResizeMode = ResizeMode.NoResize;
+            SizeToContent = SizeToContent.Manual;
+            
+            // Создаём контент с анимированной рамкой
+            CreateContent();
+            
+            // Таймеры для синхронизации и анимации
+            _syncTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(10) };
+            _syncTimer.Tick += SyncPosition;
+            
+            _animationTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(16) }; // ~60 FPS
+            _animationTimer.Tick += Animate;
+            
+            // Начинаем анимацию появления
+            _animationTimer.Start();
+            
+            // Синхронизируем позицию
+            SyncPosition();
+            _syncTimer.Start();
+        }
+
+        private void CreateContent()
+        {
+            var grid = new System.Windows.Controls.Grid();
+            
+            // Создаём анимированную рамку
+            var border = new System.Windows.Controls.Border
+            {
+                BorderThickness = new Thickness(1),
+                CornerRadius = new CornerRadius(12),
+                BorderBrush = new System.Windows.Media.SolidColorBrush(System.Windows.Media.Colors.White),
+                HorizontalAlignment = System.Windows.HorizontalAlignment.Stretch,
+                VerticalAlignment = System.Windows.VerticalAlignment.Stretch
+            };
+
+            grid.Children.Add(border);
+            Content = grid;
+        }
+
+        private void SyncPosition(object? sender, EventArgs e)
+        {
+            if (!IsWindow(_targetWindow))
+            {
+                Close();
+                return;
+            }
+
+            GetWindowRect(_targetWindow, out RECT rect);
+            int width = rect.Right - rect.Left;
+            int height = rect.Bottom - rect.Top;
+
+            // Позиционируем рамку вокруг окна
+            Left = rect.Left + 2;
+            Top = rect.Top - 2;
+            Width = width - 4;
+            Height = height + 2;
+
+            // Перемещаем окно-индикатор сразу под закреплённым окном
+            var hwnd = new WindowInteropHelper(this).Handle;
+            SetWindowPos(hwnd, _targetWindow, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE | SWP_SHOWWINDOW);
+        }
+
+        private void Animate(object? sender, EventArgs e)
+        {
+            // Отключаем анимацию прозрачности, рамка всегда видима
+            Opacity = 1.0;
+        }
+
+        public new void Hide()
+        {
+            _animationTimer.Start();
+        }
+
+        protected override void OnClosed(EventArgs e)
+        {
+            _syncTimer?.Stop();
+            _animationTimer?.Stop();
+            base.OnClosed(e);
+        }
+
+        private void SyncPosition()
+        {
+            SyncPosition(null, EventArgs.Empty);
+        }
+
+        protected override void OnSourceInitialized(EventArgs e)
+        {
+            base.OnSourceInitialized(e);
+            var hwnd = new WindowInteropHelper(this).Handle;
+            // Делаем окно невзаимодействующим
+            var exStyle = (long)GetWindowLongPtr(hwnd, GWL_EXSTYLE);
+            exStyle |= WS_EX_TRANSPARENT | WS_EX_NOACTIVATE;
+            SetWindowLongPtr(hwnd, GWL_EXSTYLE, (IntPtr)exStyle);
         }
     }
 
@@ -355,153 +485,5 @@ namespace SmartPins
 
         [System.Runtime.InteropServices.DllImport("user32.dll")]
         public static extern int GetWindowThreadProcessId(IntPtr hWnd, out uint processId);
-    }
-
-    // Добавить WinAPI константы и функции
-    internal static class WinApiDefs
-    {
-        public const int WS_POPUP = unchecked((int)0x80000000);
-        public const int WS_EX_TRANSPARENT = 0x00000020;
-        public const int WS_EX_TOPMOST = 0x00000008;
-        public const int WS_EX_TOOLWINDOW = 0x00000080;
-        public const int WS_EX_LAYERED = 0x00080000;
-        public const int SW_SHOW = 5;
-        public const int SW_HIDE = 0;
-        public const int LWA_ALPHA = 0x00000002;
-
-        [DllImport("user32.dll")]
-        public static extern IntPtr CreateWindowEx(int dwExStyle, string lpClassName, string? lpWindowName, int dwStyle,
-            int x, int y, int nWidth, int nHeight, IntPtr hWndParent, IntPtr hMenu, IntPtr hInstance, IntPtr lpParam);
-
-        [DllImport("user32.dll")]
-        public static extern bool DestroyWindow(IntPtr hWnd);
-
-        [DllImport("user32.dll")]
-        public static extern bool MoveWindow(IntPtr hWnd, int X, int Y, int nWidth, int nHeight, bool bRepaint);
-
-        [DllImport("user32.dll")]
-        public static extern bool ShowWindow(IntPtr hWnd, int nCmdShow);
-
-        [DllImport("user32.dll")]
-        public static extern bool SetLayeredWindowAttributes(IntPtr hwnd, uint crKey, byte bAlpha, uint dwFlags);
-
-        [DllImport("user32.dll")]
-        public static extern IntPtr GetModuleHandle(string? lpModuleName);
-
-        [DllImport("user32.dll")]
-        public static extern bool GetWindowRect(IntPtr hWnd, out RECT lpRect);
-
-        [StructLayout(LayoutKind.Sequential)]
-        public struct RECT
-        {
-            public int Left;
-            public int Top;
-            public int Right;
-            public int Bottom;
-        }
-    }
-
-    // Новый класс для рисования белой анимированной рамки
-    public class WindowBorderOverlay
-    {
-        private readonly IntPtr _targetWindow;
-        private IntPtr _overlayHwnd = IntPtr.Zero;
-        private byte _currentAlpha = 0;
-        private byte _targetAlpha = 255;
-        private System.Threading.Timer? _animationTimer;
-        private bool _isVisible = false;
-
-        public WindowBorderOverlay(IntPtr targetWindow)
-        {
-            _targetWindow = targetWindow;
-        }
-
-        public void Show()
-        {
-            if (_overlayHwnd == IntPtr.Zero)
-                CreateOverlay();
-            _targetAlpha = 255;
-            StartAnimation();
-        }
-
-        public void Hide()
-        {
-            _targetAlpha = 0;
-            StartAnimation();
-        }
-
-        private void CreateOverlay()
-        {
-            WinApiDefs.GetWindowRect(_targetWindow, out WinApiDefs.RECT rect);
-            int width = rect.Right - rect.Left;
-            int height = rect.Bottom - rect.Top;
-
-            var hInstance = WinApiDefs.GetModuleHandle(null);
-            _overlayHwnd = WinApiDefs.CreateWindowEx(
-                WinApiDefs.WS_EX_LAYERED | WinApiDefs.WS_EX_TRANSPARENT | WinApiDefs.WS_EX_TOOLWINDOW | WinApiDefs.WS_EX_TOPMOST,
-                "STATIC", null,
-                WinApiDefs.WS_POPUP,
-                rect.Left, rect.Top, width, height,
-                IntPtr.Zero, IntPtr.Zero, hInstance, IntPtr.Zero);
-
-            WinApiDefs.SetLayeredWindowAttributes(_overlayHwnd, 0, _currentAlpha, WinApiDefs.LWA_ALPHA);
-            WinApiDefs.ShowWindow(_overlayHwnd, WinApiDefs.SW_SHOW);
-            Redraw();
-        }
-
-        private void Redraw()
-        {
-            if (_overlayHwnd == IntPtr.Zero) return;
-            WinApiDefs.GetWindowRect(_targetWindow, out WinApiDefs.RECT rect);
-            int width = rect.Right - rect.Left;
-            int height = rect.Bottom - rect.Top;
-            WinApiDefs.MoveWindow(_overlayHwnd, rect.Left, rect.Top, width, height, true);
-
-            using (var g = System.Drawing.Graphics.FromHwnd(_overlayHwnd))
-            using (var pen = new System.Drawing.Pen(System.Drawing.Color.White, 1))
-            {
-                g.Clear(System.Drawing.Color.Transparent);
-                g.DrawRectangle(pen, 0, 0, width - 1, height - 1);
-            }
-        }
-
-        private void StartAnimation()
-        {
-            _animationTimer?.Dispose();
-            _animationTimer = new System.Threading.Timer(_ => Animate(), null, 0, 15);
-        }
-
-        private void Animate()
-        {
-            if (_currentAlpha == _targetAlpha)
-            {
-                _animationTimer?.Dispose();
-                if (_currentAlpha == 0 && _overlayHwnd != IntPtr.Zero)
-                {
-                    WinApiDefs.ShowWindow(_overlayHwnd, WinApiDefs.SW_HIDE);
-                }
-                return;
-            }
-            if (_currentAlpha < _targetAlpha)
-                _currentAlpha += 15;
-            else if (_currentAlpha > _targetAlpha)
-                _currentAlpha -= 15;
-            if (_currentAlpha > 255) _currentAlpha = 255;
-            if (_currentAlpha < 0) _currentAlpha = 0;
-            WinApiDefs.SetLayeredWindowAttributes(_overlayHwnd, 0, _currentAlpha, WinApiDefs.LWA_ALPHA);
-            if (_currentAlpha > 0)
-                WinApiDefs.ShowWindow(_overlayHwnd, WinApiDefs.SW_SHOW);
-            Redraw();
-        }
-
-        public void Dispose()
-        {
-            _animationTimer?.Dispose();
-            if (_overlayHwnd != IntPtr.Zero)
-            {
-                WinApiDefs.DestroyWindow(_overlayHwnd);
-                _overlayHwnd = IntPtr.Zero;
-            }
-        }
     }
 } 
